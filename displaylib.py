@@ -15,22 +15,80 @@ class Display(object):
         self.D7 = D7
         self.WIDTH = WIDTH
 
-        LINE = [0x80, 0xC0, 0x94, 0xD4]
+        self.LINE = [0x80, 0xC0, 0x94, 0xD4]
 
-        E_PULSE = 0.00005
-        E_DELAY = 0.00005
+        self.E_PULSE = 0.00005
+        self.E_DELAY = 0.00005
 
-        CHR = True
-        CMD = False
+        self.CHR = True
 
         GPIO.setmode(GPIO.BCM)
-        GPIO.setwarningsF(False)
-        GPIO.setup(E, GPIO.OUT)
-        GPIO.setup(D4, GPIO.OUT)
-        GPIO.setup(D5, GPIO.OUT)
-        GPIO.setup(D6, GPIO.OUT)
-        GPIO.setup(D7, GPIO.OUT)
+        GPIO.setwarnings(False)
+        GPIO.setup(self.E, GPIO.OUT)
+        GPIO.setup(self.D4, GPIO.OUT)
+        GPIO.setup(self.D5, GPIO.OUT)
+        GPIO.setup(self.D6, GPIO.OUT)
+        GPIO.setup(self.D7, GPIO.OUT)
+
+        self.lcd_byte(0x33,False)
+        self.lcd_byte(0x32,False)
+        self.lcd_byte(0x28,False)
+        self.lcd_byte(0x0C,False)  
+        self.lcd_byte(0x06,False)
+        self.lcd_byte(0x01,False)  
 
     def printStr(self,line,string):
-        lcd_byte(LINE[line+1],CMD)
-        lcd_string(string)
+        self.lcd_byte(LINE[line+1],False)
+        self.lcd_string(string)
+
+    def lcd_string(self, message):
+        message = message.ljust(LCD_WIDTH," ")  
+
+        for i in range(self.WIDTH):
+            lcd_byte(ord(message[i]),self.CHR)
+
+    def lcd_byte(self, bits, mode):
+
+        GPIO.output(self.RS, mode) # RS
+
+        # High bits
+        GPIO.output(self.D4, False)
+        GPIO.output(self.D5, False)
+        GPIO.output(self.D6, False)
+        GPIO.output(self.D7, False)
+        if bits&0x10==0x10:
+            GPIO.output(self.D4, True)
+        if bits&0x20==0x20:
+            GPIO.output(self.D5, True)
+        if bits&0x40==0x40:
+            GPIO.output(self.D6, True)
+        if bits&0x80==0x80:
+            GPIO.output(self.D7, True)
+
+        # Toggle 'Enable' pin
+        time.sleep(self.E_DELAY)    
+        GPIO.output(self.E, True)  
+        time.sleep(self.E_PULSE)
+        GPIO.output(self.E, False)  
+        time.sleep(self.E_DELAY)      
+
+        # Low bits
+        GPIO.output(self.D4, False)
+        GPIO.output(self.D5, False)
+        GPIO.output(self.D6, False)
+        GPIO.output(self.D7, False)
+        if bits&0x01==0x01:
+            GPIO.output(self.D4, True)
+        if bits&0x02==0x02:
+            GPIO.output(self.D5, True)
+        if bits&0x04==0x04:
+            GPIO.output(self.D6, True)
+        if bits&0x08==0x08:
+            GPIO.output(self.D7, True)
+
+        # Toggle 'Enable' pin
+        time.sleep(self.E_DELAY)    
+        GPIO.output(self.E, True)  
+        time.sleep(self.E_PULSE)
+        GPIO.output(self.E, False)  
+        time.sleep(self.E_DELAY)   
