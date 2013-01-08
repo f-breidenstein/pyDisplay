@@ -3,6 +3,7 @@ import time
 import socket
 import os
 from datetime import timedelta
+from threading import Thread
 
 class Display(object):
 
@@ -38,9 +39,34 @@ class Display(object):
         self.lcd_byte(0x06,False)
         self.lcd_byte(0x01,False)  
 
-    def printStr(self,line,string):
+    def printStr(self,line, allign, string):
         self.lcd_byte(self.LINE[line-1],False)
-        self.lcd_string(string)
+        
+        difference = int(self.WIDTH - len(string))
+        half = int(difference / 2)    
+        
+        if (allign == "l"):
+            new_string = string
+        elif (allign == "r"):
+            new_string = " "*difference + string
+        elif (allign == "c"):
+            new_string = " "*half+ string
+        else:
+            new_string = string
+
+        self.lcd_string(new_string)
+    
+    def printScrolling(self, line, string):
+        thread = Thread(target=self.printThread, args=(line,string,))
+        thread.start()
+                
+    def printThread(self,line,string):
+        if (len(string) <= self.WIDTH):
+            self.printStr(line, "l", string)
+        else:
+            for i in range(len(string) - self.WIDTH + 1): 
+                self.printStr(line, "l", string[i:i+self.WIDTH])
+                time.sleep(0.5)
 
     def lcd_string(self, message):
         message = message.ljust(self.WIDTH," ")  
@@ -49,10 +75,7 @@ class Display(object):
             self.lcd_byte(ord(message[i]),self.CHR)
 
     def lcd_byte(self, bits, mode):
-
-        GPIO.output(self.RS, mode) # RS
-
-        # High bits
+        GPIO.output(self.RS, mode)
         GPIO.output(self.D4, False)
         GPIO.output(self.D5, False)
         GPIO.output(self.D6, False)
@@ -66,14 +89,12 @@ class Display(object):
         if bits&0x80==0x80:
             GPIO.output(self.D7, True)
 
-        # Toggle 'Enable' pin
         time.sleep(self.E_DELAY)    
         GPIO.output(self.E, True)  
         time.sleep(self.E_PULSE)
         GPIO.output(self.E, False)  
         time.sleep(self.E_DELAY)      
-
-        # Low bits
+        
         GPIO.output(self.D4, False)
         GPIO.output(self.D5, False)
         GPIO.output(self.D6, False)
@@ -87,7 +108,6 @@ class Display(object):
         if bits&0x08==0x08:
             GPIO.output(self.D7, True)
 
-        # Toggle 'Enable' pin
         time.sleep(self.E_DELAY)    
         GPIO.output(self.E, True)  
         time.sleep(self.E_PULSE)
