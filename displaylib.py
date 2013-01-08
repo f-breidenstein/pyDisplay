@@ -25,6 +25,7 @@ class Display(object):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(self.E, GPIO.OUT)
+        GPIO.setup(self.RS, GPIO.OUT)
         GPIO.setup(self.D4, GPIO.OUT)
         GPIO.setup(self.D5, GPIO.OUT)
         GPIO.setup(self.D6, GPIO.OUT)
@@ -38,14 +39,14 @@ class Display(object):
         self.lcd_byte(0x01,False)  
 
     def printStr(self,line,string):
-        self.lcd_byte(LINE[line+1],False)
+        self.lcd_byte(self.LINE[line-1],False)
         self.lcd_string(string)
 
     def lcd_string(self, message):
-        message = message.ljust(LCD_WIDTH," ")  
+        message = message.ljust(self.WIDTH," ")  
 
         for i in range(self.WIDTH):
-            lcd_byte(ord(message[i]),self.CHR)
+            self.lcd_byte(ord(message[i]),self.CHR)
 
     def lcd_byte(self, bits, mode):
 
