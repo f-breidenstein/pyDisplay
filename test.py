@@ -1,6 +1,7 @@
 #! /usr/bin/python2
 import termios, sys, os
 from displaylib import *
+from actionlib import *
 
 # Initialize displaywires
 disp = Display(25, 24, 23, 17, 21, 22, 20)
@@ -17,9 +18,9 @@ names = ["System",
 
 menu_system = ["RAM",
                "CPU"]
-menu_audio = ["Track 1",
-              "Track 2",
-              "Track 3"]
+menu_audio = ["Play / Pause",
+              "Next Track",
+              "Current Track"]
 menu_info = ["Date",
              "Time"]
 
@@ -42,23 +43,50 @@ def getKey():
         termios.tcsetattr(fd, TERMIOS.TCSAFLUSH, old)
     return c
 
-def drawrMenu():
-    printMenu(names[cat],subnames[cat][subcat])
+def drawMenu():
+  disp.printMenu(names[cat],subnames[cat][subcat])
 
-#disp.printStr(1, "l", string) 
-#disp.printStr(2, "r", string)
+#########################
+# START MAIN PROGRAMM   #
+#########################
+# Welcome Screen
+disp.printStr(1, "c", "*** Welcome ***")
+disp.printStr(2, "c", "Use w,a,s,d")
+disp.clear(3)
+disp.printStr(4, "c", "(c) by POETTERING") 
 
+# loop to 
 while True:
     key = getKey()
-    if (key = "a"):
-        subcat -= 1;
-    elif (key = "d"):
-        subcat += 1;
-    elif (key = "w"):
-        cat -= 1;
-    elif [key = "s"):
-        cat += 1:
-    else
-        echo key;
-    drawMenu;
+    if (key == "a"):
+        subcat -= 1
+        if (subcat < 0):
+            subcat = len(subnames[cat])-1
 
+    elif (key == "d"):
+        subcat += 1
+        if (subcat == len(subnames[cat])):
+            subcat = 0
+
+    elif (key == "w"):
+        cat -= 1
+        subcat = 0
+        if (cat < 0):
+            cat = len(subnames)-1
+
+    elif (key == "s"):
+        cat += 1
+        subcat = 0
+        if (cat == len(subnames)):
+            cat = 0
+    elif (key == "f"):
+        disp.clear(2)
+        disp.clear(3)
+        disp.clear(4)
+        disp.action(cat,subcat) 
+        time.sleep(2)
+    else:
+        print (key) 
+    
+    # Update Screen with new Menupoint
+    drawMenu()

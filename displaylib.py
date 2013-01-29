@@ -38,6 +38,12 @@ class Display(object):
         self.lcd_byte(0x06,False)
         self.lcd_byte(0x01,False)  
 
+    def action(self, cat, subcat):
+        if (cat == 1 and subcat == 1):
+            self.printStr(3,"c","Baum")
+            self.printStr(4,"c","Baum")
+
+
     def printStr(self,line, allign, string):
         self.lcd_byte(self.LINE[line-1],False)
         
@@ -62,7 +68,13 @@ class Display(object):
         self.clear(4)
     
     def clear(self,line):
-        self.printStr(line,"c"," "*self.WIDTH)
+        if (line == "a"):
+            self.printStr(1,"c"," "*self.WIDTH)
+            self.printStr(2,"c"," "*self.WIDTH)
+            self.printStr(3,"c"," "*self.WIDTH)
+            self.printStr(4,"c"," "*self.WIDTH)
+        else:
+            self.printStr(line,"c"," "*self.WIDTH)
     
     def lcd_string(self, message):
         message = message.ljust(self.WIDTH," ")  
