@@ -10,6 +10,23 @@ TERMIOS = termios
 
 cat = 0
 subcat = 0
+
+names = ["System",
+         "Audio",
+         "Info"]
+
+menu_system = ["RAM",
+               "CPU"]
+menu_audio = ["Track 1",
+              "Track 2",
+              "Track 3"]
+menu_info = ["Date",
+             "Time"]
+
+subnames = [menu_system,
+            menu_audio,
+            menu_info]
+
 def getKey():
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
@@ -25,11 +42,23 @@ def getKey():
         termios.tcsetattr(fd, TERMIOS.TCSAFLUSH, old)
     return c
 
-def drawmenu():
-    disp.printMenu("Audio", "Next Track")
+def drawrMenu():
+    printMenu(names[cat],subnames[cat][subcat])
 
 #disp.printStr(1, "l", string) 
 #disp.printStr(2, "r", string)
 
 while True:
+    key = getKey()
+    if (key = "a"):
+        subcat -= 1;
+    elif (key = "d"):
+        subcat += 1;
+    elif (key = "w"):
+        cat -= 1;
+    elif [key = "s"):
+        cat += 1:
+    else
+        echo key;
+    drawMenu;
 
