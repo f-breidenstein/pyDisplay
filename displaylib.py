@@ -3,7 +3,6 @@ import time
 import socket
 import os
 from datetime import timedelta
-from threading import Thread
 
 class Display(object):
 
@@ -55,19 +54,16 @@ class Display(object):
             new_string = string
 
         self.lcd_string(new_string)
-    
-    def printScrolling(self, line, string):
-        thread = Thread(target=self.printThread, args=(line,string,))
-        thread.start()
-                
-    def printThread(self,line,string):
-        if (len(string) <= self.WIDTH):
-            self.printStr(line, "l", string)
-        else:
-            for i in range(len(string) - self.WIDTH + 1): 
-                self.printStr(line, "l", string[i:i+self.WIDTH])
-                time.sleep(0.5)
 
+    def printMenu(self, category,name):
+        self.printStr(1,"c","*** "+category+" ***")
+        self.clear(2)
+        self.printStr(3,"c",name)
+        self.clear(4)
+    
+    def clear(self,line):
+        self.printStr(line,"c"," "*self.WIDTH)
+    
     def lcd_string(self, message):
         message = message.ljust(self.WIDTH," ")  
 
